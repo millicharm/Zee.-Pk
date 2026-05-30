@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Zee Hub - Free online tools for image compression, resizing, PDF conversion, and text analysis. All tools work completely offline in your browser.">
+    <meta name="keywords" content="image compressor, image resizer, PDF converter, word counter, online tools, free tools">
+    <meta name="theme-color" content="#0f0f23">
+    <title>Zee Hub - All-in-One Free Tools</title>
+    
+    <!-- Preload fonts for better performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- PDF.js library for PDF to Image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
+    <!-- jsPDF for Image to PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d4ff;
+            --primary-dark: #00a8cc;
+            --secondary: #7c3aed;
+            --accent: #ec4899;
+            --bg-dark: #0f0f23;
+            --bg-darker: #0a0a15;
+            --card-bg: #1a1a2e;
+            --text-light: #e0e0e0;
+            --text-muted: #a0a0b0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        [data-theme="light"] {
+            --primary: #0088cc;
+            --primary-dark: #0066aa;
+            --secondary: #6d28d9;
+            --accent: #db2777;
+            --bg-dark: #ffffff;
+            --bg-darker: #f8f9fa;
+            --card-bg: #f3f4f6;
+            --text-light: #1f2937;
+            --text-muted: #6b7280;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background 0.3s ease;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] header {
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom-color: rgba(0, 136, 204, 0.15);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-dark);
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .theme-toggle {
+            width: 50px;
+            height: 26px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 13px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            padding: 0 3px;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(0, 212, 255, 0.3);
+        }
+
+        .theme-toggle-circle {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        [data-theme="light"] .theme-toggle-circle {
+            transform: translateX(24px);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            text-align: center;
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.9rem 1.8rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--bg-dark);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        /* ===== TOOLS SECTION ===== */
+        .tools-section {
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .tool-card {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(35, 35, 65, 0.8));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 12px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="light"] .tool-card {
+            background: linear-gradient(135deg, rgba(243, 244, 246, 0.9), rgba(229, 231, 235, 0.9));
+            border-color: rgba(0, 136, 204, 0.15);
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .tool-card:hover::before {
+            left: 100%;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        }
+
+        .tool-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .tool-card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-tool {
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-tool:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* ===== TOOL MODALS ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        [data-theme="light"] .modal {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--primary);
+        }
+
+        /* ===== FORM ELEMENTS ===== */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 6px;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] .form-group input[type="text"],
+        [data-theme="light"] .form-group input[type="number"],
+        [data-theme="light"] .form-group textarea,
+        [data-theme="light"] .form-group select {
+            background: rgba(0, 136, 204, 0.05);
+            border-color: rgba(0, 136, 204, 0.2);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* ===== FILE UPLOAD ===== */
+        .file-upload {
+            position: relative;
+            border: 2px dashed rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        [data-theme="light"] .file-upload {
+            border-color: rgba(0, 136, 204, 0.3);
+            background: rgba(0, 136, 204, 0.05);
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-text {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .file-name {
+            color: var(--primary);
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* ===== RESULTS ===== */
+        .result-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .result-item {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid var(--success);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        [data-theme="light"] .result-item {
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .result-text {
+            font-weight: 500;
+        }
+
+        .btn-download {
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        /* ===== AD PLACEHOLDER ===== */
+        .ad-placeholder {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px dashed rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            margin: 2rem 0;
+            font-size: 0.9rem;
+        }
+
+        [data-theme="light"] .ad-placeholder {
+            background: rgba(0, 136, 204, 0.05);
+            border-color: rgba(0, 136, 204, 0.2);
+        }
+
+        .ad-placeholder small {
+            display: block;
+            margin-top: 0.5rem;
+            opacity: 0.7;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-copyright {
+            font-size: 0.9rem;
+        }
+
+        /* ===== SPINNER ===== */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .header-content {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .search-bar {
+                width: 100%;
+                order: 3;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+
+            .hero {
+                padding: 3rem 1rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* ===== UTILS ===== */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-1 { margin-top: 1rem; }
+        .mt-2 { margin-top: 2rem; }
+        .mb-1 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 2rem; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">Z</div>
+                Zee Hub
+            </div>
+            <div class="header-controls">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search tools...">
+                </div>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <div class="theme-toggle-circle">🌙</div>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <h1>Zee Hub</h1>
+        <p>All-in-One Free Tools for Your Daily Tasks</p>
+        <p style="font-size: 1rem; margin-top: 1rem;">Fast • Secure • No Sign-up Required • Works Offline</p>
+        <div class="cta-buttons">
+            <button class="btn btn-primary" onclick="document.querySelector('.tools-grid').scrollIntoView({ behavior: 'smooth' })">
+                ↓ Explore Tools
+            </button>
+        </div>
+
+        <div class="ad-placeholder">
+            📢 Advertisement Space (Google AdSense Ready)
+            <small>Responsive ad unit placeholder</small>
+        </div>
+    </section>
+
+    <!-- TOOLS SECTION -->
+    <section class="tools-section">
+        <h2 class="section-title">Our Tools</h2>
+        <p class="section-subtitle">Professional utilities that work entirely in your browser</p>
+
+        <div class="tools-grid" id="toolsGrid">
+            <!-- Image Compressor -->
+            <div class="tool-card" data-tool="compressor">
+                <div class="tool-icon">🖼️</div>
+                <h3>Image Compressor</h3>
+                <p>Reduce image file size while maintaining quality. Perfect for web use.</p>
+                <button class="btn-tool" onclick="openModal('compressor')">Open Tool</button>
+            </div>
+
+            <!-- Image Resizer -->
+            <div class="tool-card" data-tool="resizer">
+                <div class="tool-icon">📏</div>
+                <h3>Image Resizer</h3>
+                <p>Resize images to specific dimensions. Supports all common formats.</p>
+                <button class="btn-tool" onclick="openModal('resizer')">Open Tool</button>
+            </div>
+
+            <!-- Image to PDF -->
+            <div class="tool-card" data-tool="img2pdf">
+                <div class="tool-icon">🖼️📄</div>
+                <h3>Image to PDF</h3>
+                <p>Convert one or multiple images into a single PDF document.</p>
+                <button class="btn-tool" onclick="openModal('img2pdf')">Open Tool</button>
+            </div>
+
+            <!-- PDF to Image -->
+            <div class="tool-card" data-tool="pdf2img">
+                <div class="tool-icon">📄🖼️</div>
+                <h3>PDF to Image</h3>
+                <p>Extract pages from PDF and convert them to high-quality images.</p>
+                <button class="btn-tool" onclick="openModal('pdf2img')">Open Tool</button>
+            </div>
+
+            <!-- Word Counter -->
+            <div class="tool-card" data-tool="wordcount">
+                <div class="tool-icon">✍️</div>
+                <h3>Word Counter</h3>
+                <p>Count words, characters, sentences and paragraphs in any text.</p>
+                <button class="btn-tool" onclick="openModal('wordcount')">Open Tool</button>
+            </div>
+
+            <!-- Bonus: JSON Formatter -->
+            <div class="tool-card" data-tool="json">
+                <div class="tool-icon">{ }</div>
+                <h3>JSON Formatter</h3>
+                <p>Format, validate and minify JSON with syntax highlighting.</p>
+                <button class="btn-tool" onclick="openModal('json')">Open Tool</button>
+            </div>
+        </div>
+
+        <div class="ad-placeholder">
+            📢 Advertisement Space (Google AdSense Ready)
+            <small>Responsive ad unit placeholder</small>
+        </div>
+    </section>
+
+    <!-- IMAGE COMPRESSOR MODAL -->
+    <div class="modal" id="modal-compressor">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🖼️ Image Compressor</h2>
+                <button class="close-btn" onclick="closeModal('compressor')">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label>Select Image</label>
+                <div class="file-upload" id="uploadCompressor" onclick="document.getElementById('fileCompressor').click()">
+                    <div class="file-upload-text">📁 Click to upload or drag & drop</div>
+                    <div class="file-name" id="fileNameCompressor"></div>
+                </div>
+                <input type="file" id="fileCompressor" accept="image/*" onchange="compressImage(this)">
+            </div>
+
+            <div class="form-group">
+                <label for="quality">Compression Quality: <span id="qualityValue">80</span>%</label>
+                <input type="range" id="quality" min="10" max="100" value="80" onchange="updateQualityValue(this.value)">
+            </div>
+
+            <div id="compressorResults" class="result-section hidden">
+                <div class="result-item">
+                    <div class="result-text">
+                        Original: <strong id="origSizeCompressor"></strong> → Compressed: <strong id="compSizeCompressor"></strong>
+                        <div style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
+                            Saved: <strong id="savedPercentage"></strong>
+                        </div>
+                    </div>
+                </div>
+                <canvas id="compressorCanvas" style="max-width: 100%; margin: 1rem 0; border-radius: 6px;"></canvas>
+                <button class="btn-download" onclick="downloadCompressed()">⬇️ Download Compressed Image</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMAGE RESIZER MODAL -->
+    <div class="modal" id="modal-resizer">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📏 Image Resizer</h2>
+                <button class="close-btn" onclick="closeModal('resizer')">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label>Select Image</label>
+                <div class="file-upload" id="uploadResizer" onclick="document.getElementById('fileResizer').click()">
+                    <div class="file-upload-text">📁 Click to upload or drag & drop</div>
+                    <div class="file-name" id="fileNameResizer"></div>
+                </div>
+                <input type="file" id="fileResizer" accept="image/*" onchange="loadResizerImage(this)">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label>Width (px)</label>
+                    <input type="number" id="resizeWidth" placeholder="Enter width" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Height (px)</label>
+                    <input type="number" id="resizeHeight" placeholder="Enter height" min="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="maintainAspect" checked> Maintain Aspect Ratio
+                </label>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="resizeImage()">Resize Image</button>
+
+            <div id="resizerResults" class="result-section hidden">
+                <canvas id="resizerCanvas" style="max-width: 100%; margin: 1rem 0; border-radius: 6px;"></canvas>
+                <button class="btn-download" onclick="downloadResized()">⬇️ Download Resized Image</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMAGE TO PDF MODAL -->
+    <div class="modal" id="modal-img2pdf">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🖼️📄 Image to PDF</h2>
+                <button class="close-btn" onclick="closeModal('img2pdf')">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label>Select Images</label>
+                <div class="file-upload" onclick="document.getElementById('filesImg2PDF').click()">
+                    <div class="file-upload-text">📁 Click to upload or drag & drop (multiple images)</div>
+                    <div class="file-name" id="fileCountImg2PDF"></div>
+                </div>
+                <input type="file" id="filesImg2PDF" accept="image/*" multiple onchange="addImagesToPDF(this)">
+            </div>
+
+            <div id="imageList" style="margin: 1.5rem 0;">
+                <div id="imageListItems"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="pdfPageSize">Page Size</label>
+                <select id="pdfPageSize">
+                    <option value="a4">A4 (210x297mm)</option>
+                    <option value="letter">Letter (8.5x11in)</option>
+                    <option value="a3">A3 (297x420mm)</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="convertImagesToPDF()" id="convertBtn">Convert to PDF</button>
+        </div>
+    </div>
+
+    <!-- PDF TO IMAGE MODAL -->
+    <div class="modal" id="modal-pdf2img">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📄🖼️ PDF to Image</h2>
+                <button class="close-btn" onclick="closeModal('pdf2img')">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label>Select PDF</label>
+                <div class="file-upload" onclick="document.getElementById('filePDF2Img').click()">
+                    <div class="file-upload-text">📁 Click to upload or drag & drop</div>
+                    <div class="file-name" id="fileNamePDF2Img"></div>
+                </div>
+                <input type="file" id="filePDF2Img" accept=".pdf" onchange="loadPDFPreview(this)">
+            </div>
+
+            <div id="pdfPageInfo" class="hidden">
+                <div class="form-group">
+                    <label>Select Pages to Convert</label>
+                    <div id="pageSelection"></div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="convertPDFToImages()" id="convertPdfBtn" disabled>Convert to Images</button>
+
+            <div id="pdf2imgResults" class="result-section hidden">
+                <div id="convertedImages"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WORD COUNTER MODAL -->
+    <div class="modal" id="modal-wordcount">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✍️ Word Counter</h2>
+                <button class="close-btn" onclick="closeModal('wordcount')">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label for="textInput">Enter or paste your text</label>
+                <textarea id="textInput" placeholder="Paste your text here..." oninput="updateWordCount()"></textarea>
+            </div>
+
+            <div id="wordcountResults" class="result-section">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="result-item" style="flex-direction: column; align-items: flex-start;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Words</span>
+                        <strong id="wordCount" style="font-size: 1.5rem; color: var(--primary);">0</strong>
+                    </div>
+                    <div class="result-item" style="flex-direction: column; align-items: flex-start;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Characters</span>
+                        <strong id="charCount" style="font-size: 1.5rem; color: var(--secondary);">0</strong>
+                    </div>
+                    <div class="result-item" style="flex-direction: column; align-items: flex-start;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Sentences</span>
+                        <strong id="sentenceCount" style="font-size: 1.5rem; color: var(--accent);">0</strong>
+                    </div>
+                    <div class="result-item" style="flex-direction: column; align-items: flex-start;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Paragraphs</span>
+                        <strong id="paragraphCount" style="font-size: 1.5rem; color: var(--success);">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JSON FORMATTER MODAL -->
+    <div class="modal" id="modal-json">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>{ } JSON Formatter</h2>
+                <button class="close-btn" onclick="closeModal('json')">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label for="jsonInput">Paste JSON</label>
+                <textarea id="jsonInput" placeholder='{"key": "value"}' style="font-family: monospace;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" style="flex: 1;" onclick="formatJSON()">Format</button>
+                <button class="btn btn-secondary" style="flex: 1;" onclick="minifyJSON()">Minify</button>
+                <button class="btn btn-secondary" style="flex: 1;" onclick="validateJSON()">Validate</button>
+            </div>
+
+            <div id="jsonResults" class="result-section hidden">
+                <div id="jsonMessage" class="result-item"></div>
+                <textarea id="jsonOutput" readonly style="font-family: monospace; max-width: 100%;"></textarea>
+                <button class="btn-download" style="margin-top: 1rem;" onclick="downloadJSON()">⬇️ Download JSON</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#tools">Tools</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="footer-copyright">
+                © 2024 Zee Hub. Built by <strong>Zeeshan Hussain</strong>. All tools work offline in your browser. No data is collected or stored.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Set PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // ===== THEME TOGGLE =====
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateThemeToggleIcon();
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeToggleIcon();
+        });
+
+        function updateThemeToggleIcon() {
+            const theme = htmlElement.getAttribute('data-theme');
+            const icon = themeToggle.querySelector('.theme-toggle-circle');
+            icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // ===== MODAL FUNCTIONS =====
+        function openModal(toolName) {
+            const modal = document.getElementById(`modal-${toolName}`);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(toolName) {
+            const modal = document.getElementById(`modal-${toolName}`);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    const toolName = modal.id.replace('modal-', '');
+                    closeModal(toolName);
+                }
+            });
+        });
+
+        // ===== SEARCH FUNCTIONALITY =====
+        const searchInput = document.getElementById('searchInput');
+        const toolCards = document.querySelectorAll('.tool-card');
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            toolCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+
+        // ===== UTILITY FUNCTIONS =====
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function showError(message) {
+            alert('❌ ' + message);
+            console.error(message);
+        }
+
+        function showSuccess(message) {
+            console.log('✓ ' + message);
+        }
+
+        // ===== IMAGE COMPRESSOR =====
+        let compressorImage = null;
+        let compressorOriginalSize = 0;
+
+        document.getElementById('uploadCompressor').addEventListener('click', () => {
+            document.getElementById('fileCompressor').click();
+        });
+
+        document.getElementById('fileCompressor').addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image file');
+                return;
+            }
+
+            compressorOriginalSize = file.size;
+            document.getElementById('fileNameCompressor').textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onerror = () => showError('Failed to read file');
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onerror = () => showError('Failed to load image');
+                img.onload = () => {
+                    compressorImage = img;
+                    displayCompressedPreview();
+                    showSuccess('Image loaded for compression');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        setupDragDrop('uploadCompressor', (file) => {
+            if (file.type.startsWith('image/')) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                document.getElementById('fileCompressor').files = dataTransfer.files;
+                document.getElementById('fileCompressor').dispatchEvent(new Event('change'));
+            } else {
+                showError('Please drag a valid image file');
+            }
+        });
+
+        function updateQualityValue(value) {
+            document.getElementById('qualityValue').textContent = value;
+            if (compressorImage) {
+                displayCompressedPreview();
+            }
+        }
+
+        function displayCompressedPreview() {
+            try {
+                const quality = parseInt(document.getElementById('quality').value) / 100;
+                const canvas = document.getElementById('compressorCanvas');
+                const ctx = canvas.getContext('2d');
+
+                canvas.width = compressorImage.width;
+                canvas.height = compressorImage.height;
+                ctx.drawImage(compressorImage, 0, 0);
+
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                const compressedSize = Math.round(compressedDataUrl.length * 0.75);
+
+                document.getElementById('origSizeCompressor').textContent = formatFileSize(compressorOriginalSize);
+                document.getElementById('compSizeCompressor').textContent = formatFileSize(compressedSize);
+                const savings = Math.round(((compressorOriginalSize - compressedSize) / compressorOriginalSize) * 100);
+                document.getElementById('savedPercentage').textContent = Math.max(0, savings) + '%';
+
+                document.getElementById('compressorResults').classList.remove('hidden');
+            } catch (error) {
+                showError('Error processing image: ' + error.message);
+            }
+        }
+
+        function downloadCompressed() {
+            try {
+                if (!compressorImage) {
+                    showError('Please load an image first');
+                    return;
+                }
+                const quality = parseInt(document.getElementById('quality').value) / 100;
+                const canvas = document.getElementById('compressorCanvas');
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/jpeg', quality);
+                link.download = 'compressed-image.jpg';
+                link.click();
+                showSuccess('Image downloaded');
+            } catch (error) {
+                showError('Download failed: ' + error.message);
+            }
+        }
+
+        // ===== IMAGE RESIZER =====
+        let resizerImage = null;
+
+        document.getElementById('uploadResizer').addEventListener('click', () => {
+            document.getElementById('fileResizer').click();
+        });
+
+        document.getElementById('fileResizer').addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image file');
+                return;
+            }
+
+            document.getElementById('fileNameResizer').textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onerror = () => showError('Failed to read file');
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onerror = () => showError('Failed to load image');
+                img.onload = () => {
+                    resizerImage = img;
+                    document.getElementById('resizeWidth').value = img.width;
+                    document.getElementById('resizeHeight').value = img.height;
+                    showSuccess('Image loaded for resizing');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        setupDragDrop('uploadResizer', (file) => {
+            if (file.type.startsWith('image/')) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                document.getElementById('fileResizer').files = dataTransfer.files;
+                document.getElementById('fileResizer').dispatchEvent(new Event('change'));
+            } else {
+                showError('Please drag a valid image file');
+            }
+        });
+
+        function resizeImage() {
+            try {
+                if (!resizerImage) {
+                    showError('Please load an image first');
+                    return;
+                }
+
+                let width = parseInt(document.getElementById('resizeWidth').value);
+                let height = parseInt(document.getElementById('resizeHeight').value);
+
+                if (!width || !height || width < 1 || height < 1) {
+                    showError('Please enter valid width and height values');
+                    return;
+                }
+
+                const canvas = document.getElementById('resizerCanvas');
+                const ctx = canvas.getContext('2d');
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(resizerImage, 0, 0, width, height);
+
+                document.getElementById('resizerResults').classList.remove('hidden');
+                showSuccess('Image resized to ' + width + 'x' + height);
+            } catch (error) {
+                showError('Resize failed: ' + error.message);
+            }
+        }
+
+        function downloadResized() {
+            try {
+                const canvas = document.getElementById('resizerCanvas');
+                if (canvas.width === 0) {
+                    showError('Please resize an image first');
+                    return;
+                }
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'resized-image.png';
+                link.click();
+                showSuccess('Resized image downloaded');
+            } catch (error) {
+                showError('Download failed: ' + error.message);
+            }
+        }
+
+        // ===== IMAGE TO PDF =====
+        let imagesToPDF = [];
+
+        document.getElementById('filesImg2PDF').addEventListener('change', function(e) {
+            const files = this.files;
+            if (files.length === 0) return;
+
+            imagesToPDF = [];
+            let loadedCount = 0;
+
+            Array.from(files).forEach((file, index) => {
+                if (!file.type.startsWith('image/')) {
+                    showError('File ' + file.name + ' is not a valid image');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onerror = () => showError('Failed to read ' + file.name);
+                reader.onload = (e) => {
+                    imagesToPDF[index] = {
+                        data: e.target.result,
+                        name: file.name
+                    };
+                    loadedCount++;
+                    if (loadedCount === files.length) {
+                        imagesToPDF = imagesToPDF.filter(Boolean);
+                        document.getElementById('fileCountImg2PDF').textContent = `${imagesToPDF.length} image(s) selected`;
+                        updateImageList();
+                        showSuccess(imagesToPDF.length + ' images ready for PDF conversion');
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function updateImageList() {
+            const list = document.getElementById('imageListItems');
+            if (imagesToPDF.length === 0) {
+                list.innerHTML = '<div style="color: var(--text-muted); padding: 1rem;">No images selected</div>';
+                return;
+            }
+            list.innerHTML = imagesToPDF
+                .map((img, idx) => `
+                    <div style="padding: 0.75rem; background: rgba(0, 212, 255, 0.08); border-radius: 6px; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.9rem;"><strong>${idx + 1}.</strong> ${img.name}</span>
+                        <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;" onclick="removeImage(${idx})">✕ Remove</button>
+                    </div>
+                `)
+                .join('');
+        }
+
+        function removeImage(index) {
+            imagesToPDF.splice(index, 1);
+            updateImageList();
+            document.getElementById('fileCountImg2PDF').textContent = imagesToPDF.length + ' image(s)';
+        }
+
+        function convertImagesToPDF() {
+            try {
+                if (imagesToPDF.length === 0) {
+                    showError('Please select at least one image');
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                let processedCount = 0;
+
+                imagesToPDF.forEach((imgObj, index) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        if (index > 0) doc.addPage();
+                        const pageSize = document.getElementById('pdfPageSize').value;
+                        let width, height;
+
+                        if (pageSize === 'a4') {
+                            width = 210;
+                            height = 297;
+                        } else if (pageSize === 'letter') {
+                            width = 215.9;
+                            height = 279.4;
+                        } else {
+                            width = 297;
+                            height = 420;
+                        }
+
+                        const imgWidth = width - 20;
+                        const imgHeight = (img.height / img.width) * imgWidth;
+                        const y = Math.max(10, (height - imgHeight) / 2);
+
+                        doc.addImage(imgObj.data, 'JPEG', 10, y, imgWidth, imgHeight);
+
+                        processedCount++;
+                        if (processedCount === imagesToPDF.length) {
+                            doc.save('converted-to-pdf.pdf');
+                            showSuccess('PDF created successfully');
+                        }
+                    };
+                    img.onerror = () => showError('Failed to process image: ' + imgObj.name);
+                    img.src = imgObj.data;
+                });
+            } catch (error) {
+                showError('PDF conversion failed: ' + error.message);
+            }
+        }
+
+        // ===== PDF TO IMAGE =====
+        let pdfDocument = null;
+
+        document.getElementById('filePDF2Img').addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (!file) return;
+
+            if (file.type !== 'application/pdf') {
+                showError('Please select a valid PDF file');
+                return;
+            }
+
+            document.getElementById('fileNamePDF2Img').textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onerror = () => showError('Failed to read PDF file');
+            reader.onload = async (e) => {
+                try {
+                    const pdf = await pdfjsLib.getDocument({ data: e.target.result }).promise;
+                    pdfDocument = pdf;
+
+                    const pageSelection = document.getElementById('pageSelection');
+                    pageSelection.innerHTML = '';
+
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const label = document.createElement('label');
+                        label.style.display = 'block';
+                        label.style.marginBottom = '0.75rem';
+                        label.style.cursor = 'pointer';
+                        label.style.padding = '0.5rem';
+                        label.style.borderRadius = '4px';
+                        label.style.background = 'rgba(0, 212, 255, 0.05)';
+                        label.innerHTML = `
+                            <input type="checkbox" class="pdf-page-checkbox" value="${i}" checked style="margin-right: 0.5rem;">
+                            Page ${i}
+                        `;
+                        pageSelection.appendChild(label);
+                    }
+
+                    document.getElementById('pdfPageInfo').classList.remove('hidden');
+                    document.getElementById('convertPdfBtn').disabled = false;
+                    showSuccess('PDF loaded with ' + pdf.numPages + ' page(s)');
+                } catch (error) {
+                    showError('Error loading PDF: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        async function convertPDFToImages() {
+            try {
+                if (!pdfDocument) {
+                    showError('Please load a PDF file first');
+                    return;
+                }
+
+                const checkboxes = document.querySelectorAll('.pdf-page-checkbox:checked');
+                const pages = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+                if (pages.length === 0) {
+                    showError('Please select at least one page');
+                    return;
+                }
+
+                const convertBtn = document.getElementById('convertPdfBtn');
+                convertBtn.disabled = true;
+                convertBtn.innerHTML = '<div class="spinner"></div> Converting...';
+
+                const resultsDiv = document.getElementById('convertedImages');
+                resultsDiv.innerHTML = '';
+
+                for (const pageNum of pages) {
+                    const page = await pdfDocument.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: 2.5 });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+                    const imgDiv = document.createElement('div');
+                    imgDiv.className = 'result-item';
+                    imgDiv.style.flexDirection = 'column';
+                    imgDiv.style.alignItems = 'flex-start';
+
+                    const pageTitle = document.createElement('div');
+                    pageTitle.style.marginBottom = '1rem';
+                    pageTitle.style.fontWeight = '600';
+                    pageTitle.style.fontSize = '1.1rem';
+                    pageTitle.textContent = 'Page ' + pageNum;
+                    imgDiv.appendChild(pageTitle);
+
+                    const img = document.createElement('img');
+                    img.src = canvas.toDataURL('image/png');
+                    img.style.maxWidth = '100%';
+                    img.style.borderRadius = '6px';
+                    img.style.marginBottom = '1rem';
+                    img.style.border = '1px solid rgba(0, 212, 255, 0.2)';
+                    imgDiv.appendChild(img);
+
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'btn-download';
+                    downloadBtn.textContent = '⬇️ Download Page ' + pageNum;
+                    downloadBtn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL('image/png');
+                        link.download = `page-${pageNum}.png`;
+                        link.click();
+                        showSuccess('Page ' + pageNum + ' downloaded');
+                    };
+                    imgDiv.appendChild(downloadBtn);
+                    resultsDiv.appendChild(imgDiv);
+                }
+
+                document.getElementById('pdf2imgResults').classList.remove('hidden');
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = 'Convert to Images';
+                showSuccess('Converted ' + pages.length + ' page(s) to images');
+            } catch (error) {
+                showError('Conversion failed: ' + error.message);
+                document.getElementById('convertPdfBtn').disabled = false;
+                document.getElementById('convertPdfBtn').innerHTML = 'Convert to Images';
+            }
+        }
+
+        // ===== WORD COUNTER =====
+        document.getElementById('textInput').addEventListener('input', updateWordCount);
+
+        function updateWordCount() {
+            const text = document.getElementById('textInput').value;
+
+            const words = text.trim().length === 0 ? 0 : text.trim().split(/\s+/).length;
+            const chars = text.length;
+            const charsNoSpaces = text.replace(/\s/g, '').length;
+            const sentences = text.trim().length === 0 ? 0 : text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+            const paragraphs = text.trim().length === 0 ? 0 : text.split(/\n\n+/).filter(p => p.trim().length > 0).length;
+
+            document.getElementById('wordCount').textContent = words;
+            document.getElementById('charCount').textContent = chars + ' (' + charsNoSpaces + ' no spaces)';
+            document.getElementById('sentenceCount').textContent = sentences;
+            document.getElementById('paragraphCount').textContent = paragraphs;
+        }
+
+        // ===== JSON FORMATTER =====
+        function formatJSON() {
+            try {
+                const input = document.getElementById('jsonInput').value.trim();
+                if (!input) {
+                    showError('Please enter JSON');
+                    return;
+                }
+                const parsed = JSON.parse(input);
+                const formatted = JSON.stringify(parsed, null, 2);
+                document.getElementById('jsonOutput').value = formatted;
+                showJSONMessage('✓ Valid JSON - Formatted', 'success');
+            } catch (error) {
+                showJSONMessage('✗ Invalid JSON: ' + error.message, 'error');
+            }
+        }
+
+        function minifyJSON() {
+            try {
+                const input = document.getElementById('jsonInput').value.trim();
+                if (!input) {
+                    showError('Please enter JSON');
+                    return;
+                }
+                const parsed = JSON.parse(input);
+                const minified = JSON.stringify(parsed);
+                document.getElementById('jsonOutput').value = minified;
+                showJSONMessage('✓ JSON Minified', 'success');
+            } catch (error) {
+                showJSONMessage('✗ Invalid JSON: ' + error.message, 'error');
+            }
+        }
+
+        function validateJSON() {
+            try {
+                const input = document.getElementById('jsonInput').value.trim();
+                if (!input) {
+                    showError('Please enter JSON');
+                    return;
+                }
+                JSON.parse(input);
+                showJSONMessage('✓ Valid JSON', 'success');
+            } catch (error) {
+                showJSONMessage('✗ Invalid JSON: ' + error.message, 'error');
+            }
+        }
+
+        function showJSONMessage(msg, type) {
+            const msgDiv = document.getElementById('jsonMessage');
+            msgDiv.textContent = msg;
+            msgDiv.style.borderLeftColor = type === 'success' ? 'var(--success)' : 'var(--error)';
+            msgDiv.style.background = type === 'success' 
+                ? 'rgba(16, 185, 129, 0.1)' 
+                : 'rgba(239, 68, 68, 0.1)';
+            document.getElementById('jsonResults').classList.remove('hidden');
+        }
+
+        function downloadJSON() {
+            try {
+                const content = document.getElementById('jsonOutput').value;
+                if (!content) {
+                    showError('No JSON to download');
+                    return;
+                }
+                const link = document.createElement('a');
+                link.href = 'data:application/json,' + encodeURIComponent(content);
+                link.download = 'data.json';
+                link.click();
+                showSuccess('JSON file downloaded');
+            } catch (error) {
+                showError('Download failed: ' + error.message);
+            }
+        }
+
+        // ===== DRAG AND DROP HELPER =====
+        function setupDragDrop(elementId, callback) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            element.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                element.style.borderColor = 'var(--primary)';
+                element.style.background = 'rgba(0, 212, 255, 0.15)';
+            });
+
+            element.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                element.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+                element.style.background = 'rgba(0, 212, 255, 0.05)';
+            });
+
+            element.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                element.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+                element.style.background = 'rgba(0, 212, 255, 0.05)';
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    callback(files[0]);
+                }
+            });
+        }
+
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    const toolName = modal.id.replace('modal-', '');
+                    closeModal(toolName);
+                });
+            }
+        });
+
+        // Initialize
+        updateWordCount();
+        console.log('✓ Zee Hub loaded successfully - All features ready');
+    </script>
+</body>
+</html>
