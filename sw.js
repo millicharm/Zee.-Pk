@@ -3,4 +3,3 @@ self.options = {
     "zoneId": 11081312
 }
 self.lary = ""
-importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
